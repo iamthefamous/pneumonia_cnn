@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from data import XRayDataset
 from model import MODEL_PATH, OUTPUT_DIR, PneumoniaCNN, save_model
 
-EPOCHS = 20
+EPOCHS = 15
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
 
@@ -46,12 +46,9 @@ def plot_history(history):
 
 def main():
     torch.manual_seed(0)
-    train_set = XRayDataset("train", augment=True)
-    train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
+    train_loader = DataLoader(XRayDataset("train", augment=True), batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(XRayDataset("val"), batch_size=256)
-
-    counts = torch.bincount(train_set.labels).float()
-    loss_fn = nn.CrossEntropyLoss(weight=counts.sum() / (len(counts) * counts))
+    loss_fn = nn.CrossEntropyLoss()
 
     model = PneumoniaCNN()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
