@@ -4,15 +4,19 @@ A small convolutional neural network, trained from scratch on a CPU, that classi
 
 ## Dataset
 
-[PneumoniaMNIST](https://medmnist.com/) (MedMNIST v3, 128×128 version): 5,856 pediatric chest X-rays from Kermany et al. (2018), CC BY 4.0.
+The data is 12,024 adult chest X-rays from the [RSNA Pneumonia Detection Challenge](https://www.kaggle.com/c/rsna-pneumonia-detection-challenge), labelled by radiologists. They are taken from the [COVID-19 Radiography Database](https://www.kaggle.com/datasets/tawsifurrahman/covid19-radiography-database) (299×299 PNG) and resized to 128×128.
+
+- **pneumonia:** all 6,012 *Lung Opacity* images.
+- **normal:** 6,012 images sampled with a fixed seed from the 8,851 RSNA *Normal* images.
+- Only RSNA images are used, so both classes come from the same source. The metadata sheets identify the source of each image.
 
 | Split | Images | Normal | Pneumonia |
 |---|---|---|---|
-| Train | 4,708 | 1,214 | 3,494 |
-| Validation | 524 | 135 | 389 |
-| Test | 624 | 234 | 390 |
+| Train | 8,416 | 4,208 | 4,208 |
+| Validation | 1,804 | 902 | 902 |
+| Test | 1,804 | 902 | 902 |
 
-The data file (75 MB) is not in the repository. It is downloaded automatically and checked against its MD5 checksum.
+The data is not in the repository. `python data.py` downloads the 816 MB archive (no Kaggle login needed) into `data/raw/`. It then builds `data/rsna_pneumonia_128.npz` and exports demo images to `samples/`. The build takes about 20 seconds.
 
 ## Model
 
@@ -22,7 +26,7 @@ Input 1x128x128
 -> Flatten 8192 -> Dropout -> Dense 128 -> Dropout -> Dense 2 -> Softmax
 ```
 
-About 1.15M parameters. Training uses Adam, a class-weighted cross-entropy loss (to handle the 74% pneumonia imbalance) and light augmentation. It runs for 20 epochs, which takes about 8 minutes on a CPU.
+About 1.15M parameters. Training uses Adam, cross-entropy loss and light augmentation. It runs for 15 epochs, which takes about 10 minutes on a CPU.
 
 ## Setup
 
@@ -50,7 +54,7 @@ Run everything in one place with **`pneumonia_cnn.ipynb`**, or use the scripts o
 
 | File | Purpose |
 |---|---|
-| `data.py` | Download, loading, augmentation and preprocessing of new images |
+| `data.py` | Download, balanced dataset build, loading, augmentation and preprocessing of new images |
 | `model.py` | CNN definition, save and load |
 | `train.py` | Training loop and learning curves |
 | `evaluate.py` | Accuracy, precision, recall and confusion matrix on the test set |
